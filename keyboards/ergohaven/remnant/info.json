@@ -6,7 +6,7 @@
     "diode_direction": "COL2ROW",
     "features": {
         "command": false,
-        "console": false
+        "console": true
     },
     "matrix_pins": {
         "cols": ["GP10", "GP11", "GP12", "GP13", "GP14", "GP15"],
