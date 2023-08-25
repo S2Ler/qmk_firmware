@@ -1,5 +1,7 @@
 #include "select_word.h"
 
+//#define DEBUG_SELECT_WORD
+
 enum {
     STATE_NONE,       // No selection.
     STATE_SELECTED,   // Macro released with something selected.
@@ -90,7 +92,7 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record, uint16_t sel_key
 }
 
 void select_word_debug(void) {
-#ifdef CONSOLE_ENABLE
+#ifdef DEBUG_SELECT_WORD
     switch (state) {
         case STATE_NONE:
             debug_msg("Feature(SELECT_WORD): STATE_NONE\n");
