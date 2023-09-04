@@ -4,10 +4,11 @@
 #define VIAL_UNLOCK_COMBO_ROWS { 1, 1 }
 #define VIAL_UNLOCK_COMBO_COLS { 1, 2 }
 
-#ifdef OLED_ENABLE
+//#ifdef OLED_ENABLE
 #    define OLED_DISPLAY_128X64
 #define I2C1_SCL_PIN        GP11
 #define I2C1_SDA_PIN        GP10
 #define OLED_BRIGHTNESS 128
 #define I2C_DRIVER I2CD1
-#endif
+#define DEBUG_TO_SCREEN 1
+//#endif

@@ -4,14 +4,16 @@
 #include "key_codes.h"
 #include "features/select_word.h"
 #include <process_combo.h>
+#include <process_tap_dance.h>
 #include "tap_dance/tap_dance.h"
+#include <raw_hid.h>
 
 void keyboard_post_init_user(void) {
     // Customise these values to desired behaviour
-    debug_enable=true;
-    debug_matrix=true;
-    debug_keyboard=true;
-    //debug_mouse=true;
+//    debug_enable=true;
+//    debug_matrix=true;
+//    debug_keyboard=true;
+//    debug_mouse=true;
 }
 
 // MARK: - Combos
@@ -59,28 +61,28 @@ enum custom_codes {
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [HOME_LAYER] = LAYOUT(
-        LGUI(KC_TAB), XXXXXXX, XXXXXXX, XXXXXXX, ACT_SELECTION_SCREENSHOT, TD(TD_SAFE_BOOT),          TD(TD_SAFE_BOOT), XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, ACT_SWITCH_WINDOWS,
+        LGUI(KC_TAB), XXXXXXX, XXXXXXX, REDO, ACT_SELECTION_SCREENSHOT, TD(TD_SAFE_BOOT),              TD(TD_SAFE_BOOT), XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, ACT_SWITCH_WINDOWS,
 
         KC_TAB,  MEH_T(KC_Q),  KC_W, KC_E,  KC_R, KC_T,                                                KC_Y, KC_U, KC_I, KC_O, KC_P, OSL(ACTION_LAYER),
         KC_LCTL, LSFT_T(KC_A), C_S_T(KC_S), KC_D, KC_F, KC_G,                                          KC_H, KC_J, KC_K, KC_L, KC_RSFT, LSFT(KC_RSFT),
         XXXXXXX, LSA_T(KC_Z),  KC_X, KC_C,  KC_V, KC_B,                                                KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_BSLS,
 
         KC_LALT, KC_DELETE,                                                                            KC_BSPC, KC_ESCAPE,
-        QK_LGUI, TL_LOWR, MO(APP_LAYER),                                                  KC_ENT, TL_UPPR, KC_SPACE
+        QK_LGUI, TL_LOWR, MO(APP_LAYER),                                                               KC_ENT, TL_UPPR, KC_SPACE
     ),
 
     [SYMBAL_LAYER] = LAYOUT(
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                          XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        _______, LSFT(KC_1), LSFT(KC_2), LSFT(KC_3), LSFT(KC_4), LSFT(KC_5),           LSFT(KC_6), LSFT(KC_7), LSFT(KC_8), LSFT(KC_9), LSFT(KC_0), LSFT(KC_EQUAL),
-        _______, KC_GRAVE, KC_QUOTE, KC_SCLN, LSFT(KC_LBRC), KC_LBRC,                  KC_RBRC, LSFT(KC_RBRC), KC_MINUS, KC_EQUAL, LSFT(KC_SCLN), LSFT(KC_QUOTE),
-        _______, LSFT(KC_GRAVE), XXXXXXX, MO(NUM_LAYER), LSFT(KC_9), RSFT(KC_LSFT),    LSFT(KC_MINUS), LSFT(KC_0), LSFT(KC_COMMA), LSFT(KC_DOT), LSFT(KC_SLASH), LSFT(KC_BSLS),
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                                 XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        _______, LSFT(KC_1), LSFT(KC_2), LSFT(KC_3), LSFT(KC_4), LSFT(KC_5),                  LSFT(KC_6), LSFT(KC_7), LSFT(KC_8), LSFT(KC_9), LSFT(KC_0), LSFT(KC_EQUAL),
+        _______, KC_GRAVE, KC_QUOTE, KC_SCLN, LSFT(KC_LBRC), KC_LBRC,                         KC_RBRC, LSFT(KC_RBRC), KC_MINUS, KC_EQUAL, LSFT(KC_SCLN), XXXXXXX,
+        _______, LSFT(KC_GRAVE), LSFT(KC_QUOTE), MO(NUM_LAYER), LSFT(KC_9), RSFT(KC_LSFT),    LSFT(KC_MINUS), LSFT(KC_0), LSFT(KC_COMMA), LSFT(KC_DOT), LSFT(KC_SLASH), LSFT(KC_BSLS),
                            _______, _______,                                                  _______, _______,
                                          _______, _______, _______,      _______, _______,  _______
     
     ),
 
     [NAV_LAYER] = LAYOUT(
-        QK_REPEAT_KEY, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        QK_REPEAT_KEY, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                       RS_LEFT_HALF, RS_BOTTOM_HALF, RS_TOP_HALF, RS_RIGHT_HALF, XXXXXXX, XXXXXXX,
         _______, XXXXXXX, REINDENT, MOVE_LINE_DOWN, MOVE_LINE_UP, XXXXXXX,                KC_PGDN, LINE_START, LINE_END, KC_PGUP, SELECT_WORD,  SHOW_DOCUMENTATION,
         _______, KC_LSFT, FIND_CALLERS, NAV_BACK, NAV_FORWARD, TO_DEFINITION,          KC_LEFT, KC_DOWN, KC_UP, KC_RIGHT, NEXT_APP_WINDOW,  FILE_STRUCTURE,
         _______, LSA_T(KC_ENTER), REVEAL_IN, XXXXXXX, DELETE_LINE, NEXT_PLACEHOLDER,      PREV_TAB, PREV_WINDOW_TAB, NEXT_WINDOW_TAB, NEXT_TAB, XXXXXXX,  XCODE_ACTION_POPUP,
@@ -145,4 +147,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     return true;
+}
+
+
+// MARK: Raw HID
+
+void raw_hid_receive(uint8_t *data, uint8_t length) {
+    print("raw_hid_receive: ");
+
+    for (int i = 0; i < length; i++) {
+        debug_hex(data[i]);
+        print(" ");
+    }
+
+    print("\n");
 }

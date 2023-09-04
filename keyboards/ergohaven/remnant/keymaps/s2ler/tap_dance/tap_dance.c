@@ -12,6 +12,7 @@ void td_safe_boot_each_tap(tap_dance_state_t *state, void *user_data);
 
 tap_dance_action_t tap_dance_actions[] = {
     [TD_LGUI] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lgui_finished, td_lgui_reset),
+
     [TD_SAFE_BOOT] = ACTION_TAP_DANCE_FN_ADVANCED(td_safe_boot_each_tap, NULL, NULL),
 };
 

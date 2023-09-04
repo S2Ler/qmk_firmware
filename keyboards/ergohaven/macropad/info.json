@@ -3,6 +3,9 @@
     "manufacturer": "Ergohaven",
     "url": "https://ergohaven.xyz",
     "maintainer": "Ergohaven",
+    "features": {
+        "console": true
+    },
     "usb": {
         "vid": "0x3393",
         "pid": "0x0138",
