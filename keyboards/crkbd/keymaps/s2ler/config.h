@@ -20,6 +20,39 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Select hand configuration */
 
+#define TAPPING_TERM 200
+
+#define PERMISSIVE_HOLD
+// or
+//#define HOLD_ON_OTHER_KEY_PRESS
+
+#define COMBO_TERM 50 // TODO: Try defaulting to 200
+//#define MK_KINETIC_SPEED // uncomment to enable kinetic scrolling
+#define MOUSEKEY_DELAY 0
+#define MOUSEKEY_INTERVAL 7
+#define MOUSEKEY_MOVE_DELTA 1
+#define MOUSEKEY_MAX_SPEED 50
+#define MOUSEKEY_TIME_TO_MAX 90
+//#define MOUSEKEY_INITIAL_SPEED 150
+//#define MOUSEKEY_BASE_SPEED 6000
+//#define MOUSEKEY_ACCELERATED_SPEED 2000
+
+#define MOUSEKEY_WHEEL_DELAY 0
+#define MOUSEKEY_WHEEL_INTERVAL 50
+#define MOUSEKEY_WHEEL_MAX_SPEED 5
+#define MOUSEKEY_WHEEL_TIME_TO_MAX 255
+
+//#define MOUSEKEY_WHEEL_INITIAL_MOVEMENTS 1
+//#define MOUSEKEY_WHEEL_BASE_MOVEMENTS 20
+//#define MOUSEKEY_WHEEL_ACCELERATED_MOVEMENTS 20
+//#define MOUSEKEY_WHEEL_DECELERATED_MOVEMENTS 8
+
+// TODO: Might be useful
+//#define STRICT_LAYER_RELEASE
+//#define NO_DEBUG
+//#define NO_PRINT
+
+
 #define MASTER_LEFT
 //#define MASTER_RIGHT
 //#define EE_HANDS

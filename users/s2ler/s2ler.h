@@ -1,5 +1,6 @@
 #pragma once
-#include "quantum.h"
+#include "s2ler_key_codes.h"
+
 
 // 1st layer on the cycle
 #define LAYER_CYCLE_START 0

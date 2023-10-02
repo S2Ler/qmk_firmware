@@ -17,6 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include QMK_KEYBOARD_H
+#include "s2ler.h"
+#include "layers.h"
+#include "features/select_word.h"
+#include <process_combo.h>
+#include <process_tap_dance.h>
+#include "tap_dance/tap_dance.h"
+#include <raw_hid.h>
 
 enum custom_keycodes {
     MACRO_1 = SAFE_RANGE,
@@ -30,54 +37,96 @@ void keyboard_post_init_user(void) {
     //debug_mouse=true;
 }
 
+
+// MARK: - Combos
+
+enum combo_events {
+    NEW_LINE_COMBO,
+    NEW_LINE_ABOVE_COMBO,
+};
+
+const uint16_t PROGMEM new_line_combo[] = {KC_F, KC_ENTER, COMBO_END};
+const uint16_t PROGMEM new_line_above_combo[] = {KC_D, KC_ENTER, COMBO_END};
+
+combo_t key_combos[] = {
+    [NEW_LINE_COMBO] = COMBO_ACTION(new_line_combo),
+    [NEW_LINE_ABOVE_COMBO] = COMBO_ACTION(new_line_above_combo),
+};
+
+void process_combo_event(uint16_t combo_index, bool pressed) {
+    switch(combo_index) {
+        case NEW_LINE_COMBO:
+            if (pressed) {
+                tap_code16(LGUI(KC_RIGHT));
+                tap_code16(KC_ENTER);
+            }
+            break;
+        case NEW_LINE_ABOVE_COMBO:
+            if (pressed) {
+                tap_code16(LGUI(KC_LEFT));
+                tap_code16(KC_ENTER);
+                tap_code16(KC_UP);
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+// MARK: - Layout
+
+enum custom_codes {
+    SELECT_LINE = SAFE_RANGE,
+    DELETE_LINE,
+    SELECT_WORD,
+};
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [0] = LAYOUT_split_3x6_3(
-        //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-        KC_TAB,    KC_Q,    KC_W,    KC_E,    KC_R,    MACRO_1,                         KC_Y,    KC_U,    KC_I,    KC_O,   KC_P,  KC_BSPC,
-        //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-        KC_LCTL,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
-        //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-        KC_LSFT,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_ESC,
-        //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-        KC_LGUI, TL_LOWR,  KC_SPC,     KC_ENT, TL_UPPR, KC_RALT
-        //`--------------------------'  `--------------------------'
-
+    [HOME_LAYER] = LAYOUT_split_3x6_3(
+        KC_TAB,    MEH_T(KC_Q),    KC_W,    KC_E,    KC_R,    KC_T,                   KC_Y,    KC_U,    KC_I,    KC_O,   KC_P,  KC_BSPC,
+        KC_LCTL,    LSFT_T(KC_A),    KC_S,    KC_D,    KC_F,    KC_G,                 KC_H,    KC_J,    KC_K,    KC_L, LSFT_T(KC_ESC), LSFT(KC_RSFT),
+        KC_LALT,    LSA_T(KC_Z),    KC_X,    KC_C,    KC_V,    KC_B,                  KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_BSLS,
+        KC_LGUI, TL_LOWR,  MO(APP_LAYER),                                                   KC_ENT, TL_UPPR, KC_SPACE
         ),
 
-    [1] = LAYOUT_split_3x6_3(
-        //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-        KC_TAB,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                         KC_6,    KC_7,    KC_8,    KC_9,    KC_0, KC_BSPC,
-        //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-        KC_LCTL, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_LEFT, KC_DOWN,   KC_UP,KC_RIGHT, XXXXXXX, KC_F12,
-        //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-        KC_LSFT, KC_F1,   KC_F2,  KC_F3,    KC_F4,   KC_F5,                        KC_F6,   KC_F7,    KC_F8,  KC_F9,  KC_F10,   KC_F11,
-        //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-        KC_LGUI, _______,  KC_SPC,     KC_ENT, _______, KC_RALT
-        //`--------------------------'  `--------------------------'
+    [SYMBAL_LAYER] = LAYOUT_split_3x6_3(
+        _______, LSFT(KC_1), LSFT(KC_2), LSFT(KC_3), LSFT(KC_4), LSFT(KC_5),                  LSFT(KC_6), LSFT(KC_7), LSFT(KC_8), LSFT(KC_9), LSFT(KC_0), LSFT(KC_EQUAL),
+        _______, KC_GRAVE, KC_QUOTE, KC_SCLN, LSFT(KC_LBRC), KC_LBRC,                         KC_RBRC, LSFT(KC_RBRC), KC_MINUS, KC_EQUAL, LSFT(KC_SCLN), XXXXXXX,
+        _______, LSFT(KC_GRAVE), LSFT(KC_QUOTE), MO(NUM_LAYER), LSFT(KC_9), RSFT(KC_LSFT),    LSFT(KC_MINUS), LSFT(KC_0), LSFT(KC_COMMA), LSFT(KC_DOT), LSFT(KC_SLASH), LSFT(KC_BSLS),
+        _______, _______,  _______,     _______, _______, _______
         ),
 
-    [2] = LAYOUT_split_3x6_3(
-        //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-        KC_TAB, KC_EXLM,   KC_AT, KC_HASH,  KC_DLR, KC_PERC,                      KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_BSPC,
-        //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-        KC_LCTL, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_MINS,  KC_EQL, KC_LBRC, KC_RBRC, KC_BSLS,  KC_GRV,
-        //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-        KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR, KC_PIPE, KC_TILD,
-        //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-        KC_LGUI, _______,  KC_SPC,     KC_ENT, _______, KC_RALT
-        //`--------------------------'  `--------------------------'
+    [NAV_LAYER] = LAYOUT_split_3x6_3(
+        _______, XXXXXXX, REINDENT, MOVE_LINE_DOWN, MOVE_LINE_UP, XXXXXXX,                KC_PGDN, LINE_START, LINE_END, KC_PGUP, SELECT_WORD,  SHOW_DOCUMENTATION,
+        _______, KC_LSFT, FIND_CALLERS, NAV_BACK, NAV_FORWARD, TO_DEFINITION,          KC_LEFT, KC_DOWN, KC_UP, KC_RIGHT, NEXT_APP_WINDOW,  FILE_STRUCTURE,
+        _______, LSA_T(KC_ENTER), REVEAL_IN, XXXXXXX, DELETE_LINE, NEXT_PLACEHOLDER,      PREV_TAB, PREV_WINDOW_TAB, NEXT_WINDOW_TAB, NEXT_TAB, XXXXXXX,  XCODE_ACTION_POPUP,
+        _______, _______,  _______,     _______, _______, _______
         ),
 
-    [3] = LAYOUT_split_3x6_3(
+    [MOUSE_LAYER] = LAYOUT_split_3x6_3(
+        _______, XXXXXXX, DM_RSTP, LGUI(KC_BTN1), KC_BTN3, KC_MUTE,           KC_WH_R, KC_WH_U, KC_WH_D, KC_WH_L, XXXXXXX, XXXXXXX,
+        _______, DM_PLY1, DM_REC1, KC_BTN1, KC_BTN2, KC_VOLU,                 KC_MS_L, KC_MS_D, KC_MS_U, KC_MS_R, XXXXXXX, XXXXXXX,
+        _______, DM_PLY2, DM_REC2, XXXXXXX, MV_TO_PREV_WINDOW, KC_VOLD,       _______, MV_TO_NEXT_WINDOW, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        _______, _______,  _______,     _______, _______, _______
+        ),
+    [APP_LAYER] = LAYOUT_split_3x6_3(
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        RGB_TOG, RGB_HUI, RGB_SAI, RGB_VAI, XXXXXXX, XXXXXXX,                      XXXXXXX, KC_VOLD, KC_MUTE, KC_VOLU, XXXXXXX, XXXXXXX,
+        RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, XXXXXXX, XXXXXXX,                      XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, XXXXXXX,
+        _______, _______,  _______,     _______, _______, _______
+        ),
+    [ACTION_LAYER] = LAYOUT_split_3x6_3(
         //,-----------------------------------------------------.                    ,-----------------------------------------------------.
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
         RGB_TOG, RGB_HUI, RGB_SAI, RGB_VAI, XXXXXXX, XXXXXXX,                      XXXXXXX, KC_VOLD, KC_MUTE, KC_VOLU, XXXXXXX, XXXXXXX,
-        //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
         RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, XXXXXXX, XXXXXXX,                      XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, XXXXXXX,
-        //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-        KC_LGUI, _______,  KC_SPC,     KC_ENT, _______, KC_RALT
-        //`--------------------------'  `--------------------------'
+        _______, _______,  _______,                                                _______, _______, _______
+        ),
+    [NUM_LAYER] = LAYOUT_split_3x6_3(
+        _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                       XXXXXXX,     KC_7, KC_8, KC_9, KC_COMMA, KC_KP_PLUS,
+        _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                       KC_KP_COMMA, KC_4, KC_5, KC_6, KC_0,     KC_KP_EQUAL,
+        _______, KC_LSFT, KC_LCTL, XXXXXXX, KC_LGUI, XXXXXXX,                 KC_DOT,      KC_1, KC_2, KC_3, KC_SLASH, XXXXXXX,
+        _______, _______,  _______,                                                 _______, _______, _______
         )
 };
 
@@ -99,21 +148,27 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 
 void oled_render_layer_state(void) {
     oled_write_P(PSTR("Layer: "), false);
-    switch (layer_state) {
-        case L_BASE:
-            oled_write_ln_P(PSTR("Default"), false);
+    switch (get_highest_layer(layer_state)) {
+        case 0:
+            oled_write_ln_P(PSTR("Home"), false);
             break;
-        case L_LOWER:
-            oled_write_ln_P(PSTR("Lower"), false);
+        case 1:
+            oled_write_ln_P(PSTR("Symbal"), false);
             break;
-        case L_RAISE:
-            oled_write_ln_P(PSTR("Raise"), false);
+        case 2:
+            oled_write_ln_P(PSTR("Nav"), false);
             break;
-        case L_ADJUST:
-        case L_ADJUST|L_LOWER:
-        case L_ADJUST|L_RAISE:
-        case L_ADJUST|L_LOWER|L_RAISE:
-            oled_write_ln_P(PSTR("Adjust"), false);
+        case 3:
+            oled_write_ln_P(PSTR("Mouse"), false);
+            break;
+        case 4:
+            oled_write_ln_P(PSTR("App"), false);
+            break;
+        case 5:
+            oled_write_ln_P(PSTR("Action"), false);
+            break;
+        case 6:
+            oled_write_ln_P(PSTR("Number"), false);
             break;
     }
 }
@@ -184,20 +239,42 @@ bool oled_task_user(void) {
 
 #endif
 
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-#if OLED_ENABLE
-    if (record->event.pressed) {
-        set_keylog(keycode, record);
-    }
-#endif
+    if (!process_select_word(keycode, record, SELECT_WORD)) { return false; }
 
     switch (keycode) {
-        case MACRO_1:
+        case SELECT_LINE:
             if (record->event.pressed) {
-                send_string("Hello World!");
+                tap_code16(LINE_END);
+                tap_code16( SELECT_LINE_START);
+                return false;
             }
-            return false;
+            break;
+        case DELETE_LINE:
+            if (record->event.pressed) {
+                tap_code16(LINE_START);
+                tap_code16( KILL_TO_LINE_END);
+                return false;
+            }
+            break;
         default:
-            return true;
+            break;
     }
+
+    return true;
+}
+
+
+// MARK: Raw HID
+
+void raw_hid_receive(uint8_t *data, uint8_t length) {
+    print("raw_hid_receive: ");
+
+    for (int i = 0; i < length; i++) {
+        debug_hex(data[i]);
+        print(" ");
+    }
+
+    print("\n");
 }

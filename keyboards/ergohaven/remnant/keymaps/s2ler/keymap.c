@@ -1,7 +1,6 @@
 #include QMK_KEYBOARD_H
 #include "s2ler.h"
 #include "layers.h"
-#include "key_codes.h"
 #include "features/select_word.h"
 #include <process_combo.h>
 #include <process_tap_dance.h>
@@ -64,8 +63,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         LGUI(KC_TAB), XXXXXXX, XXXXXXX, REDO, ACT_SELECTION_SCREENSHOT, TD(TD_SAFE_BOOT),              TD(TD_SAFE_BOOT), XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, ACT_SWITCH_WINDOWS,
 
         KC_TAB,  MEH_T(KC_Q),  KC_W, KC_E,  KC_R, KC_T,                                                KC_Y, KC_U, KC_I, KC_O, KC_P, OSL(ACTION_LAYER),
-        KC_LCTL, LSFT_T(KC_A), C_S_T(KC_S), KC_D, KC_F, KC_G,                                          KC_H, KC_J, KC_K, KC_L, KC_RSFT, LSFT(KC_RSFT),
-        XXXXXXX, LSA_T(KC_Z),  KC_X, KC_C,  KC_V, KC_B,                                                KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_BSLS,
+        KC_LCTL, LSFT_T(KC_A), C_S_T(KC_S), KC_D, KC_F, KC_G,                                          KC_H, KC_J, KC_K, KC_L, RSFT_T(KC_ESC), LSFT(KC_RSFT),
+        LANG_SWITCH, LSA_T(KC_Z),  KC_X, KC_C,  KC_V, KC_B,                                                KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_BSLS,
 
         KC_LALT, KC_DELETE,                                                                            KC_BSPC, KC_ESCAPE,
         QK_LGUI, TL_LOWR, MO(APP_LAYER),                                                               KC_ENT, TL_UPPR, KC_SPACE
@@ -118,7 +117,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                       XXXXXXX,     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,  XXXXXXX,
         _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                       XXXXXXX,     KC_KP_7, KC_KP_8, KC_KP_9, KC_COMMA, KC_KP_PLUS,
         _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                       KC_KP_COMMA, KC_KP_4, KC_KP_5, KC_KP_6, KC_0,     KC_KP_EQUAL,
-        _______, XXXXXXX, KC_LCTL, XXXXXXX, KC_LGUI, XXXXXXX,                       KC_DOT,      KC_KP_1, KC_KP_2, KC_KP_3, KC_SLASH, XXXXXXX,
+        _______, KC_LEFT_SHIFT, KC_LCTL, XXXXXXX, KC_LGUI, XXXXXXX,                 KC_DOT,      KC_KP_1, KC_KP_2, KC_KP_3, KC_SLASH, XXXXXXX,
         XXXXXXX, XXXXXXX,                                                           _______, _______,
         XXXXXXX, XXXXXXX, _______,                                                  _______, XXXXXXX,  XXXXXXX
     ),
