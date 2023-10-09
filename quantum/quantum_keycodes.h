@@ -68,7 +68,7 @@
 #define LAG(kc) (QK_LALT | QK_LGUI | (kc))
 #define RSG(kc) (QK_RSFT | QK_RGUI | (kc))
 #define RAG(kc) (QK_RALT | QK_RGUI | (kc))
-#define LCA(kc) (QK_LCTL | QK_LALT | (kc))
+#define LCA(kc) (QK_LCTL | QK_LSFT | (kc))
 #define LSA(kc) (QK_LSFT | QK_LALT | (kc))
 #define RSA(kc) (QK_RSFT | QK_RALT | (kc))
 #define RCS(kc) (QK_RCTL | QK_RSFT | (kc))
