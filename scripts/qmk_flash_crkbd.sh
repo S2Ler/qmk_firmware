@@ -1,3 +1,3 @@
 #!/usr/bin/env zsh
 
-qmk flash -kb ergohaven/remnant -km s2ler -j 0
+qmk flash -kb crkbd -km s2ler -j 0

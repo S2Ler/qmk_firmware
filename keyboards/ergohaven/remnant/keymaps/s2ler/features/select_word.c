@@ -52,6 +52,10 @@ bool process_select_word(uint16_t keycode, keyrecord_t* record, uint16_t sel_key
                 state = STATE_FIRST_LINE;
             } else {
                 register_code(KC_DOWN);
+                // Tap Shift+Ctrl+E to select line to the end
+                register_mods(MOD_BIT(KC_LCTL) | mods);
+                tap_code(KC_E);
+                unregister_mods(MOD_BIT(KC_LCTL));
                 state = STATE_LINE;
             }
         }
