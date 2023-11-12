@@ -12,6 +12,7 @@
 #define APP_LAYER 4
 #define ACTION_LAYER 5
 #define NUM_LAYER 6
+#define LAYERS_COUNT 7
 
 
 #endif // QMK_FIRMWARE_LAYERS_H

@@ -1,0 +1,7 @@
+#pragma once
+
+#define MEDIA_LAYER 0
+#define XCODE_LAYER 1
+
+#define LAYER_CYCLE_START MEDIA_LAYER
+#define LAYER_CYCLE_END XCODE_LAYER

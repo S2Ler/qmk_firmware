@@ -11,8 +11,6 @@ void td_lgui_reset(tap_dance_state_t *state, void *user_data);
 void td_safe_boot_each_tap(tap_dance_state_t *state, void *user_data);
 
 tap_dance_action_t tap_dance_actions[] = {
-    [TD_LGUI] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lgui_finished, td_lgui_reset),
-
     [TD_SAFE_BOOT] = ACTION_TAP_DANCE_FN_ADVANCED(td_safe_boot_each_tap, NULL, NULL),
 };
 
@@ -23,33 +21,6 @@ static td_tap_t xtap_state = {
 };
 
 // MARK: Implementations
-
-void td_lgui_finished(tap_dance_state_t *state, void *user_data) {
-    xtap_state.state = current_dance_state(state);
-    switch (xtap_state.state) {
-        case TD_SINGLE_TAP: register_code(KC_ESC); break;
-        case TD_SINGLE_HOLD: register_mods(MOD_BIT(KC_LGUI)); break;
-        case TD_DOUBLE_TAP: register_code16(LGUI(KC_TAB)); break;
-        case TD_DOUBLE_HOLD: register_code16(MO(NUM_LAYER)); break;
-        // Last case is for fast typing. Assuming your key is `f`:
-        // For example, when typing the word `buffer`, and you want to make sure that you send `ff` and not `Esc`.
-        // In order to type `ff` when typing fast, the next character will have to be hit within the `TAPPING_TERM`, which by default is 200ms.
-//        case TD_DOUBLE_SINGLE_TAP: tap_code(KC_X); register_code(KC_X); break;
-        default: break;
-    }
-}
-
-void td_lgui_reset(tap_dance_state_t *state, void *user_data) {
-    switch (xtap_state.state) {
-        case TD_SINGLE_TAP: unregister_code(KC_ESC); break;
-        case TD_SINGLE_HOLD: unregister_mods(MOD_BIT(KC_LGUI)); break;
-        case TD_DOUBLE_TAP: unregister_code16(LGUI(KC_TAB)); break;
-        case TD_DOUBLE_HOLD: unregister_code16(MO(NUM_LAYER)); break;
-//        case TD_DOUBLE_SINGLE_TAP: unregister_code(KC_X); break;
-        default: break;
-    }
-    xtap_state.state = TD_NONE;
-}
 
 void td_safe_boot_each_tap(tap_dance_state_t *state, void *user_data) {
     if (state->count == 3) {

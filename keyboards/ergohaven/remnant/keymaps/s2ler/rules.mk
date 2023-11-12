@@ -1,5 +1,4 @@
 SRC += features/select_word.c
-SRC += tap_dance/tap_dance.c
 
 VIAL_ENABLE = no
 VIA_ENABLE = no

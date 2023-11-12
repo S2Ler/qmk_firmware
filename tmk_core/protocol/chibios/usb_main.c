@@ -28,6 +28,7 @@
 #include <ch.h>
 #include <hal.h>
 #include <string.h>
+#include <malloc.h>
 
 #include "usb_main.h"
 
@@ -1002,9 +1003,13 @@ void console_task(void) {
 
 #ifdef RAW_ENABLE
 void raw_hid_send(uint8_t *data, uint8_t length) {
-    // TODO: implement variable size packet
-    if (length != RAW_EPSIZE) {
+    if (length > RAW_EPSIZE) {
         return;
+    }
+    if (length < RAW_EPSIZE) {
+        data = (uint8_t *)realloc(data, RAW_EPSIZE);
+        memset(data + length, 0, RAW_EPSIZE - length);
+        length = RAW_EPSIZE;
     }
     chnWrite(&drivers.raw_driver.driver, data, length);
 }

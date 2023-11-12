@@ -7,9 +7,11 @@
 #include "tap_dance/tap_dance.h"
 #include <raw_hid.h>
 
+#define LANG_COUNT 2
+
 void keyboard_post_init_user(void) {
     // Customise these values to desired behaviour
-//    debug_enable=true;
+    debug_enable=true;
 //    debug_matrix=true;
 //    debug_keyboard=true;
 //    debug_mouse=true;
@@ -60,11 +62,11 @@ enum custom_codes {
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [HOME_LAYER] = LAYOUT(
-        LGUI(KC_TAB), XXXXXXX, XXXXXXX, REDO, ACT_SELECTION_SCREENSHOT, TD(TD_SAFE_BOOT),              TD(TD_SAFE_BOOT), XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, ACT_SWITCH_WINDOWS,
+        LGUI(KC_TAB), XXXXXXX, XXXXXXX, REDO, ACT_SELECTION_SCREENSHOT, TD(TD_SAFE_BOOT),              TD(TD_SAFE_BOOT), LANG_SWITCH, XXXXXXX, XXXXXXX, XXXXXXX, ACT_SWITCH_WINDOWS,
 
-        KC_TAB,  MEH_T(KC_Q),  KC_W, KC_E,  KC_R, KC_T,                                                KC_Y, KC_U, KC_I, KC_O, KC_P, OSL(ACTION_LAYER),
-        KC_LCTL, LSFT_T(KC_A), C_S_T(KC_S), KC_D, KC_F, KC_G,                                          KC_H, KC_J, KC_K, KC_L, RSFT_T(KC_ESC), LSFT(KC_RSFT),
-        LANG_SWITCH, LSA_T(KC_Z),  KC_X, KC_C,  KC_V, KC_B,                                                KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_BSLS,
+        KC_TAB,  KC_Q,  KC_W, KC_E,  KC_R, KC_T,                                                KC_Y, KC_U, KC_I, KC_O, KC_P, OSL(ACTION_LAYER),
+        KC_LCTL, KC_A, KC_S, KC_D, KC_F, KC_G,                                          KC_H, KC_J, KC_K, KC_L, KC_RSFT, LSFT(KC_RSFT),
+        KC_LSFT, KC_Z,  KC_X, KC_C,  KC_V, KC_B,                                                KC_N, KC_M, KC_COMM, KC_DOT, KC_SLSH, KC_BSLS,
 
         KC_LALT, KC_DELETE,                                                                            KC_BSPC, KC_ESCAPE,
         QK_LGUI, TL_LOWR, MO(APP_LAYER),                                                               KC_ENT, TL_UPPR, KC_SPACE
@@ -81,7 +83,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
 
     [NAV_LAYER] = LAYOUT(
-        QK_REPEAT_KEY, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                       RS_LEFT_HALF, RS_BOTTOM_HALF, RS_TOP_HALF, RS_RIGHT_HALF, XXXXXXX, XXXXXXX,
+        QK_REPEAT_KEY, XXXXXXX, XXXXXXX, XXXXXXX, RS_CENTER_HALF, XXXXXXX,                       RS_LEFT_HALF, RS_BOTTOM_HALF, RS_TOP_HALF, RS_RIGHT_HALF, XXXXXXX, XXXXXXX,
         _______, XXXXXXX, REINDENT, MOVE_LINE_DOWN, MOVE_LINE_UP, XXXXXXX,                KC_PGDN, LINE_START, LINE_END, KC_PGUP, SELECT_WORD,  SHOW_DOCUMENTATION,
         _______, KC_LSFT, FIND_CALLERS, NAV_BACK, NAV_FORWARD, TO_DEFINITION,          KC_LEFT, KC_DOWN, KC_UP, KC_RIGHT, NEXT_APP_WINDOW,  FILE_STRUCTURE,
         _______, LSA_T(KC_ENTER), REVEAL_IN, XXXXXXX, DELETE_LINE, NEXT_PLACEHOLDER,      PREV_TAB, PREV_WINDOW_TAB, NEXT_WINDOW_TAB, NEXT_TAB, XXXXXXX,  XCODE_ACTION_POPUP,
@@ -151,8 +153,135 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 // MARK: Raw HID
 
+/**
+ * ## Reports
+
+- 01: getters
+     - 02: setters
+       - 03: errors
+
+       | Name                 | Report ID | Data           | Response          |
+       |----------------------|-----------|----------------|-------------------|
+       | Get Language         | 01        | 01             | 01 01 <lang_idx>  |
+       | Set Language         | 02        | 01 <lang_id>   | 02 01 <lang_idx>  |
+       | Get active layer idx | 01        | 02             | 01 02 <layer_idx> |
+       | Set active layer idx | 02        | 02 <layer_idx> | 02 02 <layer_idx> |
+
+       ### Error reports
+
+       | Name                   | Report ID | Data |
+       |------------------------|-----------|------|
+       | Set language error     | 03        | 01   |
+       | Set active layer error | 03        | 02   |
+ */
+
+uint8_t get_language_idx() {
+    return 1;
+}
+
+void set_language_idx(uint8_t lang_idx) {
+    //
+}
+
 void raw_hid_receive(uint8_t *data, uint8_t length) {
-    print("raw_hid_receive: ");
+    print("#raw_hid_receive#\n");
+    // 1 byte = report id
+    // 2 byte = cmd
+
+    if (length < 2) {
+        print("raw_hid_receive: Unsupported report");
+        return;
+    }
+
+    uint8_t report_id = data[0];
+    uint8_t cmd_id = data[1];
+
+    if (report_id == 1) {
+        switch (cmd_id) {
+            case 1: {
+                uint8_t lang_idx = get_language_idx();
+                print("raw_hid_receive: Get language idx: ");
+                debug_hex(lang_idx);
+                print("\n");
+                uint8_t response[] = {1, 1, lang_idx};
+                raw_hid_send(response, sizeof(response));
+                break;
+            }
+            case 2: {
+                uint8_t layer_idx = get_highest_layer(layer_state);
+                print("raw_hid_receive: Get active layer idx: ");
+                debug_hex(layer_idx);
+                print("\n");
+                uint8_t response[] = {1, 2, layer_idx};
+                raw_hid_send(response, sizeof(response));
+                break;
+            }
+            default:
+                print("raw_hid_receive: Unsupported cmd");
+                break;
+        }
+    } else if (report_id == 2) {
+        switch (cmd_id) {
+            case 1: {
+                if (length < 3) {
+                    print("raw_hid_receive: Set language error: invalid length");
+                    uint8_t response[] = {3, 1, 1};
+                    raw_hid_send(response, sizeof(response));
+                    return;
+                }
+
+                uint8_t lang_idx = data[2];
+                if (lang_idx >= LANG_COUNT) {
+                    print("raw_hid_receive: Set language error: invalid lang_idx");
+                    uint8_t response[] = {3, 1, 2};
+                    raw_hid_send(response, sizeof(response));
+                    return;
+                }
+
+                set_language_idx(lang_idx);
+                print("raw_hid_receive: Set language idx: ");
+                debug_hex(lang_idx);
+                print("\n");
+                uint8_t response[] = {2, 1, lang_idx};
+                raw_hid_send(response, sizeof(response));
+                break;
+            }
+            case 2: {
+                if (length < 3) {
+                    print("raw_hid_receive: Set active layer error: invalid length");
+                    uint8_t response[] = {3, 2, 1};
+                    raw_hid_send(response, sizeof(response));
+                    return;
+                }
+
+                uint8_t layer_idx = data[2];
+                if (layer_idx >= LAYERS_COUNT) {
+                    print("raw_hid_receive: Set active layer error: invalid layer_idx");
+                    uint8_t response[] = {3, 2, 2};
+                    raw_hid_send(response, sizeof(response));
+                    return;
+                }
+
+                layer_move(layer_idx);
+                print("raw_hid_receive: Set active layer idx: ");
+                debug_hex(layer_idx);
+                print("\n");
+                uint8_t response[] = {2, 2, layer_idx};
+                raw_hid_send(response, sizeof(response));
+                break;
+            }
+            default: {
+                uint8_t response[] = {3, 255, 255};
+                raw_hid_send(response, sizeof(response));
+                print("raw_hid_receive: Unsupported cmd");
+            }
+                break;
+        }
+    } else {
+        uint8_t response[] = {3, 255, 255};
+        raw_hid_send(response, sizeof(response));
+        print("raw_hid_receive: Unsupported report");
+    }
 
     for (int i = 0; i < length; i++) {
         debug_hex(data[i]);

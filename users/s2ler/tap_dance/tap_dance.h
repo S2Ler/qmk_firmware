@@ -5,7 +5,6 @@
 #pragma once
 
 enum {
-    TD_LGUI,
     TD_SAFE_BOOT
 };
 
