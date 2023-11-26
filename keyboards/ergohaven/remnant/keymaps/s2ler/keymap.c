@@ -170,7 +170,7 @@ bool process_record_user(const uint16_t keycode, keyrecord_t *record) {
 
 // MARK: Raw HID
 
-uint8_t get_language_idx() {
+uint8_t get_language_idx(void) {
     return 1;
 }
 

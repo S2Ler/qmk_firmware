@@ -14,12 +14,6 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_SAFE_BOOT] = ACTION_TAP_DANCE_FN_ADVANCED(td_safe_boot_each_tap, NULL, NULL),
 };
 
-// Create an instance of 'td_tap_t' for the 'x' tap dance.
-static td_tap_t xtap_state = {
-    .is_press_action = true,
-    .state = TD_NONE
-};
-
 // MARK: Implementations
 
 void td_safe_boot_each_tap(tap_dance_state_t *state, void *user_data) {
